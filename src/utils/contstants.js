@@ -25,7 +25,7 @@ const buttonOpenAddNewCard = document.querySelector('.profile__add-button');
 const formElementCard = popupAddNewCard.querySelector('.form');
 
 const apiParameters = {
-  url: "https://mesto.nomoreparties.co/v1/cohort-61",
+  url: "https://mesto.nomoreparties.co/v1/cohort-202",
   headers: {
     "Content-Type": "application/json",
     "authorization": "3966d64a-b4d5-4b2d-a894-97ab6cc30032",
