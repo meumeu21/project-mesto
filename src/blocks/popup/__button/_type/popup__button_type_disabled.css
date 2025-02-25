@@ -3,3 +3,8 @@
   background: #FFF;
   color: rgba(0, 0, 0, 0.15);
 }
+
+.popup__button_type_disabled:hover {
+  background: #FFF;
+  cursor: default;
+}
