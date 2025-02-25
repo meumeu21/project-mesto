@@ -19,20 +19,48 @@ imagePopup.classList.add("popup_is-animated");
 
 // Функции открытия и закрытия окон
 function openModal(popup) {
+  popup.addEventListener("click", (evt) => {
+    closePopupByOverlay(evt, popup);
+  })
+  document.addEventListener("keydown", closeByEsc);
   popup.classList.add('popup_is-opened');
 }
 
 function closeModal(popup) {
+  document.removeEventListener("keydown", closeByEsc);
   popup.classList.remove('popup_is-opened');
+}
+
+// Закрытие поп-апов по оверлею
+function closePopupByOverlay(evt, popup) {
+  if (evt.target.classList.contains("popup")) {
+    closeModal(popup);
+  }
+}
+
+// Закрытие поп-апов нажатием Esc
+function closeByEsc(evt) {
+  if (evt.key === "Escape") {
+    const openedPopup = document.querySelector('.popup_is-opened');
+    closeModal(openedPopup);
+  }
 }
 
 
 // Открытие и закрытие окна редактирования профиля
+const profileName = profilePopup.querySelector(".popup__input_type_name");
+const profileJob = profilePopup.querySelector(".popup__input_type_description");
+const profileInfoName = document.querySelector(".profile__title");
+const profileInfoDescription = document.querySelector(".profile__description");
+
+function profileInfoToEdit() {
+  profileName.value = profileInfoName.textContent;
+  profileJob.value = profileInfoDescription.textContent;
+}
+profileInfoToEdit();
+
 function openProfilePopup() {
-  const profileName = profilePopup.querySelector(".popup__input_type_name");
-  const profileJob = profilePopup.querySelector(".popup__input_type_description");
-  profileName.value = "Жак-Ив Кусто";
-  profileJob.value = "Исследователь океана";
+  profileInfoToEdit();
   openModal(profilePopup);
 }
 document.querySelector(".profile__edit-button").addEventListener("click", openProfilePopup);
@@ -76,11 +104,11 @@ cardPopup.querySelector(".popup__button").addEventListener("click", closeCardPop
 
 // Добавление карточки
 const cardFormElement = cardPopup.querySelector(".popup__form");
+const placeNameInput = cardFormElement.querySelector(".popup__input_type_card-name");
+const linkInput = cardFormElement.querySelector(".popup__input_type_url");
 
 function handleCardFormSubmit(evt) {
   evt.preventDefault();
-  const placeNameInput = cardFormElement.querySelector(".popup__input_type_card-name");
-  const linkInput = cardFormElement.querySelector(".popup__input_type_url");
   const placeName = placeNameInput.value;
   const placeLink = linkInput.value;
   const placeData = { name: placeName, link: placeLink};
@@ -149,3 +177,61 @@ function renderCards() {
 }
 
 document.addEventListener("DOMContentLoaded", renderCards);
+
+
+// Валидация форм
+function isValid(formElement, inputElement) {
+  if (!inputElement.validity.valid) {
+    showInputError(formElement, inputElement, inputElement.validationMessage);
+  } else {
+    hideInputError(formElement, inputElement);
+  }
+}
+
+const showInputError = (formElement, inputElement, errorMessage) => {
+  const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
+  inputElement.classList.add('popup__input_type_error');
+  errorElement.textContent = errorMessage;
+};
+
+const hideInputError = (formElement, inputElement) => {
+  const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
+  inputElement.classList.remove('popup__input_type_error');
+  errorElement.textContent = '';
+};
+
+const hasInvalidInput = (inputList) => {
+  return Array.from(inputList).some((inputElement) => {
+    return !inputElement.validity.valid;
+  })
+};
+
+const toggleButtonState = (inputList, buttonElement) => {
+  if (hasInvalidInput(inputList)) {
+    buttonElement.classList.add('popup__button_type_disabled');
+    buttonElement.disabled = true;
+  } else {
+    buttonElement.classList.remove('popup__button_type_disabled');
+    buttonElement.disabled = false;
+  }
+};
+
+const setEventListeners = (formElement) => {
+  const inputList = formElement.querySelectorAll("input");
+  const buttonElement = formElement.querySelector('.popup__button');
+  toggleButtonState(inputList, buttonElement);
+  inputList.forEach((inputElement) => {
+    inputElement.addEventListener('input', () => {
+      isValid(formElement, inputElement);
+      toggleButtonState(inputList, buttonElement);
+    });
+  });
+};
+
+const enableValidation = () => {
+  const formList = document.querySelectorAll("form");
+  formList.forEach((formElement) => {
+    setEventListeners(formElement);
+  });
+};
+enableValidation();
